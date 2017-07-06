@@ -1,47 +1,33 @@
 from flask import Flask, jsonify, request
-
 from flask_sqlalchemy import SQLAlchemy
+from flask import jsonify, request
+from flask.views import MethodView
+from oncreate.user import User
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://oncreate:0987654321qwerty@oncreate.mysql.pythonanywhere-services.com/oncreate$oncreate_db'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://oncreate:0987654321qwerty@oncreate.mysql.pythonanywhere-services.com/oncreate$oncreate_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(120), unique=True)
+class UserDbApi(MethodView):
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
-
-    def __repr__(self):
-        return '<User %r>' % self.username
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-        }
-
-
-@app.route('/', methods=["GET", "POST"])
-def hello_world():
-    if request.method == "GET":
+    def get(self):
         users = [user.to_dict() for user in User.query.all()]
         context = {
             "users": users
         }
         return jsonify(context)
-    elif request.method == "POST":
+
+    def post(self):
         data = request.get_json()
         user = User(
             email=data.get("email"),
             username=data.get("username"),
         )
+        user.email = "NEW EMAIL"
+        print(user.username)
         db.session.add(user)
         db.session.commit()
         return jsonify({
@@ -49,6 +35,11 @@ def hello_world():
             "user": user.to_dict(),
             "success": True,
         })
+
+
+view = UserDbApi.as_view('api')
+app.add_url_rule('/', view_func=view, methods=['GET', 'POST'])
+
 
 if __name__ == "__main__":
     app.run(debug=True)
