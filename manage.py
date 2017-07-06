@@ -1,4 +1,4 @@
-from oncreate.flask_app import db
+from oncreate.config import db
 from oncreate.flask_app import User
 
 
