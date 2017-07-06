@@ -1,9 +1,13 @@
-from oncreate.flask_app import db
-from oncreate.flask_app import User
+from oncreate.flask_app import db, app
+from oncreate.flask_app import UserDbApi
+from oncreate.user import User
 
 
 # dmytro.kaminskyi92@gmail.com
 # add this to GIT collaborators
+
+#def run():
+#    app.run(debug=True)
 
 
 def create_test_users():
@@ -30,5 +34,7 @@ if __name__ == "__main__":
             db.drop_all()
             db.create_all()
             create_test_users()
+        #elif user_input == "5":
+        #    run()
         elif user_input in ["q", "quit"]:
             break
